@@ -2,6 +2,7 @@ import { useAuth } from '../context/AuthContext';
 import { useOrders } from '../hooks/useOrders';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
+import StockManagement from './StockManagement';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -220,6 +221,8 @@ export default function AdminDashboard() {
       }}>
         {/* Main Content */}
         <div>
+          {/* Stock Management */}
+          <StockManagement />
           {/* Pending Orders - First Priority */}
           {pendingOrders.length > 0 && (
             <div style={{ marginBottom: '32px' }}>
