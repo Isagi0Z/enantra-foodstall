@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+/* -----------------------------------
+   GLOBAL RESET & SMOOTHNESS
+----------------------------------- */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  @apply text-gray-900;
+  background: #fafafa;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* -----------------------------------
+   MOBILE CONTAINER (max 480px on mobile, wider on desktop)
+----------------------------------- */
+.container-mobile {
+  @apply w-full max-w-[480px] md:max-w-4xl mx-auto px-4;
+}
+
+/* -----------------------------------
+   BRAND THEME COLORS
+----------------------------------- */
+:root {
+  --brand: #ff7b00;
+  --brand-dark: #e66d00;
+  --brand-light: #ff9f40;
+}
+
+/* -----------------------------------
+   GLOBAL ANIMATIONS
+----------------------------------- */
+.fade-in {
+  animation: fadeIn 0.45s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.parallax {
+  animation: parallaxMove 12s ease-in-out infinite alternate;
+}
+
+@keyframes parallaxMove {
+  from { transform: scale(1.1) translateY(0px); }
+  to   { transform: scale(1.15) translateY(12px); }
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
+}
