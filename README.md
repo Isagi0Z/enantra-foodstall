@@ -137,8 +137,8 @@ service cloud.firestore {
 
 1. Click **"Admin Login"** on homepage
 2. Login with credentials:
-   - **Username:** `Chaoscrew`
-   - **Password:** `surprisedude`
+   - **Username:** `xxxx`
+   - **Password:** `xxxx`
 3. View pending orders (oldest first)
 4. Manage stock availability
 5. Mark orders as completed when ready
