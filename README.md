@@ -71,7 +71,7 @@ A modern, real-time food ordering web application built with React, Firebase, an
 4. **Create Admin User**
    - Go to Firebase Console → Authentication → Users
    - Add user with email: `chaoscrew@enantra.com`
-   - Set password: `surprisedude`
+   - Set password: `xxxx`
 
 5. **Initialize Menu Items**
    - The app will auto-initialize menu items on first load
