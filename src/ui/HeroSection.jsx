@@ -247,8 +247,8 @@ export default function HeroSection() {
     </div>
   );
 }
-
 // Simple wrapper for 3D component
 function ErrorBoundary3D({ children }) {
   return <>{children}</>;
 }
+

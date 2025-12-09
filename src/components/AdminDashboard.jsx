@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useOrders } from '../hooks/useOrders';
 import { useNavigate } from 'react-router-dom';
@@ -6,8 +7,9 @@ import StockManagement from './StockManagement';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
-  const { orders, loading, completeOrder } = useOrders();
+  const { orders, loading, completeOrder, deleteCompletedOrders } = useOrders();
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const pendingOrders = orders.filter(o => o.status === 'pending');
   const completedOrders = orders.filter(o => o.status === 'completed');
@@ -18,6 +20,22 @@ export default function AdminDashboard() {
       navigate('/admin/login');
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  const handleResetCompleted = async () => {
+    if (!window.confirm(`Are you sure you want to delete all ${completedOrders.length} completed orders? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deleteCompletedOrders();
+    } catch (error) {
+      console.error('Error deleting orders:', error);
+      alert('Failed to delete completed orders. Please try again.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -246,17 +264,46 @@ export default function AdminDashboard() {
           {/* Completed Orders (Last 20) */}
           {completedOrders.slice(-20).length > 0 && (
             <div>
-              <h2 style={{
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                color: '#111827',
-                marginBottom: '16px',
+              <div style={{
                 display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                gap: '8px'
+                marginBottom: '16px'
               }}>
-                ✓ Completed Orders (Recent)
-              </h2>
+                <h2 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  color: '#111827',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  ✓ Completed Orders (Recent)
+                </h2>
+                <button
+                  onClick={handleResetCompleted}
+                  disabled={isDeleting}
+                  style={{
+                    backgroundColor: isDeleting ? '#9ca3af' : '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    cursor: isDeleting ? 'not-allowed' : 'pointer',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isDeleting) e.target.style.backgroundColor = '#dc2626';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isDeleting) e.target.style.backgroundColor = '#ef4444';
+                  }}
+                >
+                  {isDeleting ? 'Deleting...' : '🗑️ Reset All'}
+                </button>
+              </div>
               {completedOrders.slice(-20).reverse().map((order) => (
                 <OrderCard key={order.id} order={order} />
               ))}

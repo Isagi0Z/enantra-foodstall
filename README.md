@@ -205,8 +205,8 @@ enantra-foodstall/
 
 ## 🔑 Admin Credentials
 
-- **Username:** `Chaoscrew`
-- **Password:** `surprisedude`
+- **Username:** `xxxx`
+- **Password:** `xxxx`
 - **Email (Firebase):** `chaoscrew@enantra.com`
 
 > ⚠️ **Important:** Change these credentials in production!

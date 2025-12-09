@@ -5,7 +5,8 @@ import {
   orderBy, 
   onSnapshot,
   updateDoc,
-  doc
+  doc,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
@@ -60,12 +61,29 @@ export function useOrders() {
     return updateOrderStatus(orderId, 'completed');
   };
 
+  const deleteCompletedOrders = async () => {
+    try {
+      const completedOrders = orders.filter(o => o.status === 'completed');
+      if (completedOrders.length === 0) return;
+
+      const batch = writeBatch(db);
+      completedOrders.forEach((order) => {
+        const orderRef = doc(db, 'orders', order.id);
+        batch.delete(orderRef);
+      });
+      await batch.commit();
+    } catch (error) {
+      console.error('Error deleting completed orders:', error);
+      throw error;
+    }
+  };
 
   return {
     orders,
     loading,
     updateOrderStatus,
     completeOrder,
+    deleteCompletedOrders,
   };
 }
 
