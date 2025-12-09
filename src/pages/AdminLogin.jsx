@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ADMIN_CREDENTIALS = {
-  username: 'Chaoscrew',
-  password: 'surprisedude',
-  email: 'chaoscrew@enantra.com' // Firebase uses email, so we'll use this format
-};
+const ADMIN_CREDENTIALS = [
+  {
+    username: 'Chaoscrew',
+    password: 'surprisedude',
+    email: 'chaoscrew@enantra.com'
+  },
+  {
+    username: 'naveen',
+    password: '12345678',
+    email: 'naveen@enantra.com'
+  }
+];
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -22,22 +29,30 @@ export default function AdminLogin() {
     setLoading(true);
 
     // Check hardcoded credentials first
-    if (username.toLowerCase() !== ADMIN_CREDENTIALS.username.toLowerCase() || 
-        password !== ADMIN_CREDENTIALS.password) {
+    const matchedAdmin = ADMIN_CREDENTIALS.find(
+      (admin) =>
+        admin.username.toLowerCase() === username.toLowerCase() &&
+        admin.password === password
+    );
+
+    if (!matchedAdmin) {
       setError('Invalid username or password');
       setLoading(false);
       return;
     }
 
     try {
-      // Try to login with Firebase using the email format
-      // Note: You need to create this user in Firebase Console first
-      await login(ADMIN_CREDENTIALS.email, ADMIN_CREDENTIALS.password);
+      // Try to login with Firebase using the matched admin email
+      // Note: Ensure this user exists in Firebase Console
+      await login(matchedAdmin.email, matchedAdmin.password);
       navigate('/admin');
     } catch (err) {
       // If Firebase auth fails, show helpful message
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        setError('Admin account not found. Please create the admin user in Firebase Console with email: ' + ADMIN_CREDENTIALS.email);
+        setError(
+          'Admin account not found. Please create this admin user in Firebase Console with email: ' +
+            matchedAdmin.email
+        );
       } else {
         setError(err.message || 'Failed to login. Please check your credentials.');
       }
