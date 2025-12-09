@@ -20,6 +20,8 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -28,7 +30,7 @@ export default function AdminLogin() {
     setError('');
     setLoading(true);
 
-    // Check hardcoded credentials first
+    // Match hardcoded credentials
     const matchedAdmin = ADMIN_CREDENTIALS.find(
       (admin) =>
         admin.username.toLowerCase() === username.toLowerCase() &&
@@ -42,19 +44,19 @@ export default function AdminLogin() {
     }
 
     try {
-      // Try to login with Firebase using the matched admin email
-      // Note: Ensure this user exists in Firebase Console
+      // Login using Firebase email + password
       await login(matchedAdmin.email, matchedAdmin.password);
       navigate('/admin');
     } catch (err) {
-      // If Firebase auth fails, show helpful message
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+      if (
+        err.code === 'auth/user-not-found' ||
+        err.code === 'auth/wrong-password'
+      ) {
         setError(
-          'Admin account not found. Please create this admin user in Firebase Console with email: ' +
-            matchedAdmin.email
+          `Admin account not found. Create Firebase user with email: ${matchedAdmin.email}`
         );
       } else {
-        setError(err.message || 'Failed to login. Please check your credentials.');
+        setError(err.message || 'Failed to login.');
       }
     } finally {
       setLoading(false);
@@ -62,60 +64,74 @@ export default function AdminLogin() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#f9fafb',
-      padding: '20px'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '40px',
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        maxWidth: '400px',
-        width: '100%'
-      }}>
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: 'bold',
-          color: '#f97316',
-          marginBottom: '8px',
-          textAlign: 'center'
-        }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f9fafb',
+        padding: '20px'
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: 'white',
+          padding: '40px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          maxWidth: '400px',
+          width: '100%'
+        }}
+      >
+        <h1
+          style={{
+            fontSize: '2rem',
+            fontWeight: 'bold',
+            color: '#f97316',
+            marginBottom: '8px',
+            textAlign: 'center'
+          }}
+        >
           🔐 Admin Login
         </h1>
-        <p style={{
-          color: '#666',
-          marginBottom: '24px',
-          textAlign: 'center'
-        }}>
+
+        <p
+          style={{
+            color: '#666',
+            marginBottom: '24px',
+            textAlign: 'center'
+          }}
+        >
           Cook Dashboard Access
         </p>
 
         {error && (
-          <div style={{
-            backgroundColor: '#fee2e2',
-            color: '#dc2626',
-            padding: '12px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            fontSize: '14px'
-          }}>
+          <div
+            style={{
+              backgroundColor: '#fee2e2',
+              color: '#dc2626',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '20px',
+              fontSize: '14px'
+            }}
+          >
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* USERNAME */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: '600',
+                color: '#374151'
+              }}
+            >
               Username
             </label>
             <input
@@ -128,24 +144,27 @@ export default function AdminLogin() {
                 padding: '12px',
                 borderRadius: '8px',
                 border: '1px solid #d1d5db',
-                fontSize: '16px',
-                boxSizing: 'border-box'
+                fontSize: '16px'
               }}
               placeholder="Enter username"
             />
           </div>
 
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
+          {/* PASSWORD + TOGGLE */}
+          <div style={{ marginBottom: '24px', position: 'relative' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: '600',
+                color: '#374151'
+              }}
+            >
               Password
             </label>
+
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -154,13 +173,28 @@ export default function AdminLogin() {
                 padding: '12px',
                 borderRadius: '8px',
                 border: '1px solid #d1d5db',
-                fontSize: '16px',
-                boxSizing: 'border-box'
+                fontSize: '16px'
               }}
               placeholder="Enter password"
             />
+
+            {/* 👁 Show/Hide Button */}
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '45px',
+                cursor: 'pointer',
+                fontSize: '18px',
+                color: '#6b7280'
+              }}
+            >
+              {showPassword ? '🙈' : '👁️'}
+            </span>
           </div>
 
+          {/* LOGIN BUTTON */}
           <button
             type="submit"
             disabled={loading}
@@ -173,36 +207,12 @@ export default function AdminLogin() {
               border: 'none',
               fontSize: '16px',
               fontWeight: 'bold',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) e.target.style.backgroundColor = '#ea580c';
-            }}
-            onMouseLeave={(e) => {
-              if (!loading) e.target.style.backgroundColor = '#f97316';
+              cursor: loading ? 'not-allowed' : 'pointer'
             }}
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-
-        <div style={{
-          marginTop: '24px',
-          paddingTop: '24px',
-          borderTop: '1px solid #e5e7eb',
-          textAlign: 'center'
-        }}>
-          <p style={{ color: '#6b7280', fontSize: '12px', marginBottom: '8px' }}>
-            
-          </p>
-          <p style={{ color: '#9ca3af', fontSize: '11px' }}>
-            
-          </p>
-          <p style={{ color: '#9ca3af', fontSize: '11px' }}>
-            
-          </p>
-        </div>
       </div>
     </div>
   );
