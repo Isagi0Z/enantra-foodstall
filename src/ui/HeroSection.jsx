@@ -10,14 +10,14 @@ export default function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative w-full h-[110vh] overflow-hidden flex items-center justify-center -mt-20">
+    <div className="relative w-full min-h-screen overflow-hidden flex items-center justify-center -mt-20 pt-20">
       {/* 3D Background */}
       <Suspense fallback={<div className="absolute inset-0 bg-zinc-950" />}>
         <Hero3D />
       </Suspense>
-      <div className="absolute inset-0 bg-zinc-950" />
+      <div className="absolute inset-0 bg-zinc-950/30" />
 
-      <div className="container-mobile relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container-mobile relative z-10 grid lg:grid-cols-2 gap-12 items-center py-12">
         {/* Text Content */}
         <div className="text-center lg:text-left space-y-8">
           <motion.div
@@ -28,13 +28,13 @@ export default function HeroSection() {
             <span className="inline-block py-1 px-3 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-semibold mb-4 backdrop-blur-sm">
               🚀 The Future of Campus Dining
             </span>
-            <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-tight text-white drop-shadow-2xl">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight leading-tight text-white drop-shadow-2xl">
               Taste the <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">
                 Extraordinary
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-zinc-300 max-w-2xl mx-auto lg:mx-0 mt-6 leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl text-zinc-300 max-w-2xl mx-auto lg:mx-0 mt-6 leading-relaxed">
               Experience the fastest, freshest, and most futuristic food ordering platform.
               Your cravings, delivered with style.
             </p>
@@ -70,7 +70,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="pt-8 flex items-center justify-center lg:justify-start gap-8"
+            className="pt-8 flex flex-wrap items-center justify-center lg:justify-start gap-6 sm:gap-8"
           >
             {[
               { label: 'Wait Time', value: '< 15m' },
@@ -78,8 +78,8 @@ export default function HeroSection() {
               { label: 'Active Stalls', value: '1' },
             ].map((stat, i) => (
               <div key={i} className="text-center lg:text-left">
-                <p className="text-3xl font-bold text-white">{stat.value}</p>
-                <p className="text-sm text-zinc-500 uppercase tracking-widest">{stat.label}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-white">{stat.value}</p>
+                <p className="text-xs sm:text-sm text-zinc-500 uppercase tracking-widest">{stat.label}</p>
               </div>
             ))}
           </motion.div>
@@ -91,7 +91,7 @@ export default function HeroSection() {
 
       {/* Scroll Indicator */}
       <motion.div
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-zinc-500"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-zinc-500 hidden sm:block"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >

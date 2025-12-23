@@ -4,11 +4,11 @@ import { useCart } from '../context/CartContext';
 import { useMenuItems } from '../hooks/useMenuItems';
 import { categories } from '../data/menuItems';
 import Button from '../ui/Button';
-import { Plus } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 
 export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const { addToCart } = useCart();
+  const { addToCart, cart, updateQuantity } = useCart();
   const { menuItems, loading } = useMenuItems();
 
   const filteredItems = selectedCategory === 'All'
@@ -95,14 +95,44 @@ export default function Menu() {
                         <div className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
                           {item.category}
                         </div>
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          onClick={() => addToCart(item)}
-                          icon={Plus}
-                        >
-                          Add
-                        </Button>
+
+                        {
+                          (() => {
+                            const cartItem = cart.find(c => c.id === item.id);
+                            const quantity = cartItem ? cartItem.quantity : 0;
+
+                            if (quantity > 0) {
+                              return (
+                                <div className="flex items-center gap-3 bg-zinc-800 rounded-lg p-1 border border-zinc-700">
+                                  <button
+                                    onClick={() => updateQuantity(item.id, quantity - 1)}
+                                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors"
+                                  >
+                                    <Minus className="w-3 h-3" />
+                                  </button>
+                                  <span className="text-sm font-bold text-white w-4 text-center">{quantity}</span>
+                                  <button
+                                    onClick={() => addToCart(item)}
+                                    className="w-6 h-6 flex items-center justify-center rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors"
+                                  >
+                                    <Plus className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <Button
+                                size="sm"
+                                variant="primary"
+                                onClick={() => addToCart(item)}
+                                icon={Plus}
+                              >
+                                Add
+                              </Button>
+                            );
+                          })()
+                        }
                       </div>
                     </div>
                   </motion.div>
