@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  collection, 
+import {
+  collection,
   addDoc,
   serverTimestamp
 } from 'firebase/firestore';
@@ -79,7 +79,7 @@ export function CartProvider({ children }) {
 
       // Add order to Firestore
       const docRef = await addDoc(collection(db, 'orders'), order);
-      
+
       const orderWithId = {
         ...order,
         id: docRef.id,

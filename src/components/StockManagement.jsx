@@ -1,4 +1,6 @@
 import { useMenuItems } from '../hooks/useMenuItems';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Package, Check, X } from 'lucide-react';
 
 export default function StockManagement() {
   const { menuItems, loading, updateAvailability } = useMenuItems();
@@ -14,118 +16,71 @@ export default function StockManagement() {
 
   if (loading) {
     return (
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '20px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        textAlign: 'center'
-      }}>
-        <p style={{ color: '#6b7280' }}>Loading menu items...</p>
+      <div className="p-8 text-center text-zinc-500">
+        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        Loading inventory...
       </div>
     );
   }
 
   return (
-    <div style={{
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      padding: '20px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      marginBottom: '20px'
-    }}>
-      <h3 style={{
-        fontSize: '1.125rem',
-        fontWeight: 'bold',
-        color: '#111827',
-        marginBottom: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px'
-      }}>
-        📦 Stock Management
+    <div className="p-6">
+      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <Package className="w-5 h-5 text-orange-500" />
+        Stock Management
       </h3>
 
-      <div style={{
-        maxHeight: '400px',
-        overflowY: 'auto'
-      }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {menuItems.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px',
-                backgroundColor: item.available ? '#f0fdf4' : '#fef2f2',
-                borderRadius: '8px',
-                border: `1px solid ${item.available ? '#bbf7d0' : '#fecaca'}`
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <p style={{
-                  fontWeight: '600',
-                  color: '#111827',
-                  marginBottom: '4px',
-                  fontSize: '0.875rem'
-                }}>
-                  {item.name}
-                </p>
-                <p style={{
-                  color: '#6b7280',
-                  fontSize: '0.75rem'
-                }}>
-                  ₹{item.price}
-                </p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{
-                  backgroundColor: item.available ? '#10b981' : '#ef4444',
-                  color: 'white',
-                  padding: '4px 12px',
-                  borderRadius: '20px',
-                  fontSize: '0.75rem',
-                  fontWeight: '600'
-                }}>
-                  {item.available ? '✓ Available' : '✗ Not Available'}
-                </span>
+      <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="grid gap-3">
+          <AnimatePresence>
+            {menuItems.map((item) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className={`
+                  flex justify-between items-center p-3 rounded-xl border transition-all
+                  ${item.available
+                    ? 'bg-zinc-800/40 border-green-500/20'
+                    : 'bg-red-500/5 border-red-500/20 opacity-75'
+                  }
+                `}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-zinc-800 overflow-hidden">
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover opacity-80" onError={(e) => e.target.style.display = 'none'} />
+                  </div>
+                  <div>
+                    <p className={`font-semibold text-sm ${item.available ? 'text-zinc-200' : 'text-zinc-400'}`}>
+                      {item.name}
+                    </p>
+                    <p className="text-xs text-zinc-600">₹{item.price}</p>
+                  </div>
+                </div>
+
                 <button
                   onClick={() => toggleAvailability(item.id, item.available)}
-                  style={{
-                    backgroundColor: item.available ? '#ef4444' : '#10b981',
-                    color: 'white',
-                    border: 'none',
-                    padding: '6px 16px',
-                    borderRadius: '6px',
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = item.available ? '#dc2626' : '#059669';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = item.available ? '#ef4444' : '#10b981';
-                  }}
+                  className={`
+                    w-9 h-9 flex items-center justify-center rounded-lg transition-colors
+                    ${item.available
+                      ? 'bg-green-500/10 text-green-500 hover:bg-red-500/20 hover:text-red-500'
+                      : 'bg-red-500/10 text-red-500 hover:bg-green-500/20 hover:text-green-500'
+                    }
+                  `}
+                  title={item.available ? "Mark as Out of Stock" : "Mark as In Stock"}
                 >
-                  {item.available ? 'Mark Unavailable' : 'Mark Available'}
+                  {item.available ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
                 </button>
-              </div>
-            </div>
-          ))}
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       </div>
 
       {menuItems.length === 0 && (
-        <p style={{
-          color: '#6b7280',
-          textAlign: 'center',
-          padding: '20px'
-        }}>
-          No menu items found
+        <p className="text-zinc-500 text-center py-8">
+          No items in catalog.
         </p>
       )}
     </div>

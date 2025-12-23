@@ -4,6 +4,10 @@ import { useOrders } from '../hooks/useOrders';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import StockManagement from './StockManagement';
+import { motion, AnimatePresence } from 'framer-motion';
+import Button from '../ui/Button';
+import { LogOut, Trash, Clock, CheckCircle, Package, RefreshCw, Smartphone, ChefHat } from 'lucide-react';
+import { cn } from '../utils/cn';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -40,380 +44,206 @@ export default function AdminDashboard() {
   };
 
   const OrderCard = ({ order }) => {
-    const createdAt = order.createdAt instanceof Date 
-      ? order.createdAt 
+    const createdAt = order.createdAt instanceof Date
+      ? order.createdAt
       : new Date(order.orderNumber || Date.now());
-    
+
     const timeAgo = Math.floor((new Date() - createdAt) / 1000 / 60);
 
     return (
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '20px',
-        marginBottom: '16px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        borderLeft: `4px solid ${order.status === 'pending' ? '#f59e0b' : '#6b7280'}`
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '16px'
-        }}>
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className={cn(
+          "bg-zinc-900/40 backdrop-blur-md rounded-2xl p-5 border shadow-lg transition-all hover:border-opacity-50",
+          order.status === 'pending'
+            ? "border-orange-500/20 hover:border-orange-500/50"
+            : "border-white/5 hover:border-white/10"
+        )}
+      >
+        <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 style={{
-              fontSize: '1.25rem',
-              fontWeight: 'bold',
-              color: '#111827',
-              marginBottom: '4px'
-            }}>
-              Order #{order.orderNumber}
-            </h3>
-            <p style={{
-              color: '#6b7280',
-              fontSize: '0.875rem',
-              marginBottom: '8px'
-            }}>
-              {timeAgo} minutes ago
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-xl font-bold text-white">#{order.orderNumber}</h3>
+              {order.status === 'pending' && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 text-xs font-medium animate-pulse">
+                  <Clock className="w-3 h-3" /> New
+                </span>
+              )}
+            </div>
+
+            <p className="text-sm text-zinc-500">
+              {timeAgo < 1 ? 'Just now' : `${timeAgo}m ago`}
             </p>
-            <span style={{
-              backgroundColor: order.status === 'pending' ? '#fef3c7' : '#e5e7eb',
-              color: order.status === 'pending' ? '#d97706' : '#6b7280',
-              padding: '4px 12px',
-              borderRadius: '20px',
-              fontSize: '0.875rem',
-              fontWeight: '600'
-            }}>
-              {order.status === 'pending' ? '⏳ Pending' : '✓ Completed'}
-            </span>
           </div>
-          <div style={{
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#f97316'
-          }}>
+          <div className="text-xl font-bold text-orange-400">
             ₹{order.total}
           </div>
         </div>
 
-        <div style={{
-          borderTop: '1px solid #e5e7eb',
-          paddingTop: '16px',
-          marginTop: '16px'
-        }}>
-          <p style={{
-            fontWeight: '600',
-            color: '#374151',
-            marginBottom: '12px',
-            fontSize: '0.875rem'
-          }}>
-            💳 Payment: <span style={{ textTransform: 'capitalize' }}>{order.paymentMethod || 'Cash'}</span>
-          </p>
+        <div className="border-t border-white/5 pt-4 space-y-4">
+          <div>
+            <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Items</p>
+            <div className="space-y-1">
+              {order.items.map((item, idx) => (
+                <div key={idx} className="flex justify-between text-sm">
+                  <span className="text-zinc-300">{item.name} <span className="text-zinc-500">× {item.quantity}</span></span>
+                  <span className="text-zinc-500">₹{item.price * item.quantity}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <div style={{
-            backgroundColor: '#f9fafb',
-            borderRadius: '8px',
-            padding: '12px',
-            marginBottom: '12px'
-          }}>
-            <p style={{
-              fontWeight: '600',
-              color: '#374151',
-              marginBottom: '8px',
-              fontSize: '0.875rem'
-            }}>
-              Items:
-            </p>
-            {order.items.map((item, idx) => (
-              <div key={idx} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '0.875rem',
-                color: '#6b7280',
-                marginBottom: '4px'
-              }}>
-                <span>{item.name} × {item.quantity}</span>
-                <span>₹{item.price * item.quantity}</span>
-              </div>
-            ))}
+          <div className="flex justify-between items-center text-sm bg-zinc-800/50 rounded-lg p-2 px-3">
+            <span className="text-zinc-500">Method</span>
+            <span className="text-zinc-300 capitalize font-medium">{order.paymentMethod || 'Cash'}</span>
           </div>
 
           {order.status === 'pending' && (
-            <button
+            <Button
+              className="w-full"
+              variant="primary"
               onClick={() => completeOrder(order.id)}
-              style={{
-                width: '100%',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                padding: '12px',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
+              icon={CheckCircle}
             >
-              ✅ Mark as Completed
-            </button>
+              Mark Completed
+            </Button>
           )}
         </div>
-      </div>
+      </motion.div>
     );
   };
 
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f9fafb'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
-          <p>Loading orders...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin text-orange-500">
+          <RefreshCw className="w-8 h-8" />
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header style={{
-        backgroundColor: 'white',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        padding: '16px 0',
-        marginBottom: '24px'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <h1 style={{
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#f97316'
-          }}>
-            👨‍🍳 Cook Dashboard
-          </h1>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <span style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-              {user?.email || 'Chaoscrew'}
-            </span>
-            <button
-              onClick={handleLogout}
-              style={{
-                backgroundColor: '#ef4444',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              Logout
-            </button>
+      <header className="sticky top-0 z-30 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+              <ChefHat className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white">Kitchen Dashboard</h1>
+              <p className="text-xs text-zinc-500">Good Job, {user?.email?.split('@')[0] || 'Chef'}!</p>
+            </div>
           </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+            icon={LogOut}
+          >
+            Logout
+          </Button>
         </div>
       </header>
 
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '0 20px',
-        display: 'grid',
-        gridTemplateColumns: '1fr 300px',
-        gap: '24px'
-      }}>
-        {/* Main Content */}
-        <div>
-          {/* Stock Management */}
-          <StockManagement />
-          {/* Pending Orders - First Priority */}
-          {pendingOrders.length > 0 && (
-            <div style={{ marginBottom: '32px' }}>
-              <h2 style={{
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                color: '#111827',
-                marginBottom: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                ⏳ Pending Orders ({pendingOrders.length})
-              </h2>
-              {pendingOrders.map((order) => (
-                <OrderCard key={order.id} order={order} />
-              ))}
-            </div>
-          )}
-
-          {/* Completed Orders (Last 20) */}
-          {completedOrders.slice(-20).length > 0 && (
-            <div>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px'
-              }}>
-                <h2 style={{
-                  fontSize: '1.25rem',
-                  fontWeight: 'bold',
-                  color: '#111827',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  ✓ Completed Orders (Recent)
-                </h2>
-                <button
-                  onClick={handleResetCompleted}
-                  disabled={isDeleting}
-                  style={{
-                    backgroundColor: isDeleting ? '#9ca3af' : '#ef4444',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    cursor: isDeleting ? 'not-allowed' : 'pointer',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isDeleting) e.target.style.backgroundColor = '#dc2626';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isDeleting) e.target.style.backgroundColor = '#ef4444';
-                  }}
-                >
-                  {isDeleting ? 'Deleting...' : '🗑️ Reset All'}
-                </button>
-              </div>
-              {completedOrders.slice(-20).reverse().map((order) => (
-                <OrderCard key={order.id} order={order} />
-              ))}
-            </div>
-          )}
-
-          {orders.length === 0 && (
-            <div style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '40px',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📭</div>
-              <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
-                No orders yet. Waiting for customers...
-              </p>
-            </div>
-          )}
-        </div>
-
+      <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar */}
-        <div>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '20px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            marginBottom: '20px',
-            position: 'sticky',
-            top: '20px'
-          }}>
-            <h3 style={{
-              fontSize: '1.125rem',
-              fontWeight: 'bold',
-              color: '#111827',
-              marginBottom: '16px'
-            }}>
-              📊 Statistics
-            </h3>
-            <div style={{ space: '12px' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '12px 0',
-                borderBottom: '1px solid #e5e7eb'
-              }}>
-                <span style={{ color: '#6b7280' }}>Pending</span>
-                <span style={{ fontWeight: 'bold', color: '#f59e0b' }}>
-                  {pendingOrders.length}
-                </span>
+        <div className="lg:col-span-1 space-y-6">
+          {/* Stats Card */}
+          <div className="bg-zinc-900/50 backdrop-blur-md rounded-2xl p-6 border border-white/5">
+            <h3 className="text-lg font-bold text-white mb-4">Snapshot</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center p-3 bg-zinc-800/50 rounded-xl border border-white/5">
+                <span className="text-zinc-400 text-sm">Pending</span>
+                <span className="text-xl font-bold text-orange-500">{pendingOrders.length}</span>
               </div>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '12px 0'
-              }}>
-                <span style={{ color: '#6b7280' }}>Total Today</span>
-                <span style={{ fontWeight: 'bold', color: '#111827' }}>
-                  {orders.length}
-                </span>
+              <div className="flex justify-between items-center p-3 bg-zinc-800/50 rounded-xl border border-white/5">
+                <span className="text-zinc-400 text-sm">Today's Total</span>
+                <span className="text-xl font-bold text-white">{orders.length}</span>
               </div>
             </div>
           </div>
 
           {/* QR Code */}
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '20px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            textAlign: 'center'
-          }}>
-            <h3 style={{
-              fontSize: '1.125rem',
-              fontWeight: 'bold',
-              color: '#111827',
-              marginBottom: '12px'
-            }}>
-              📱 QR Code
+          <div className="bg-zinc-900/50 backdrop-blur-md rounded-2xl p-6 border border-white/5 text-center">
+            <h3 className="text-lg font-bold text-white mb-2 flex items-center justify-center gap-2">
+              <Smartphone className="w-5 h-5 text-orange-500" />
+              Live Menu
             </h3>
-            <p style={{
-              color: '#6b7280',
-              fontSize: '0.875rem',
-              marginBottom: '16px'
-            }}>
-              Scan to open menu
-            </p>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              padding: '16px',
-              backgroundColor: '#f9fafb',
-              borderRadius: '8px'
-            }}>
-              <QRCodeSVG
-                value={window.location.origin}
-                size={200}
-                level="H"
-                includeMargin={true}
-              />
+            <p className="text-xs text-zinc-500 mb-4">Scan for customer view</p>
+            <div className="bg-white p-2 rounded-xl inline-block">
+              <QRCodeSVG value={window.location.origin} size={150} />
             </div>
-            <p style={{
-              color: '#6b7280',
-              fontSize: '0.75rem',
-              marginTop: '12px'
-            }}>
-              {window.location.origin}
-            </p>
           </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="lg:col-span-3 space-y-8">
+          {/* Stock Management Component (Should be refactored too) */}
+          <div className="bg-zinc-900/30 rounded-2xl p-1 border border-white/5 overflow-hidden">
+            <StockManagement />
+          </div>
+
+          {/* Pending Orders */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Clock className="w-5 h-5 text-orange-500" />
+              Pending Queue
+              <span className="bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full text-xs">{pendingOrders.length}</span>
+            </h2>
+
+            {pendingOrders.length === 0 ? (
+              <div className="bg-zinc-900/20 rounded-2xl p-12 text-center border border-white/5 border-dashed">
+                <div className="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Package className="w-8 h-8 text-zinc-600" />
+                </div>
+                <p className="text-zinc-500 text-lg">All caught up! No pending orders.</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-4">
+                <AnimatePresence mode='popLayout'>
+                  {pendingOrders.map((order) => (
+                    <OrderCard key={order.id} order={order} />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+
+          {/* Completed Orders */}
+          {completedOrders.length > 0 && (
+            <div className="space-y-4 pt-8 border-t border-white/5">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-zinc-400 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  Completed
+                </h2>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleResetCompleted}
+                  disabled={isDeleting}
+                  className="text-zinc-500 hover:text-red-400"
+                  icon={Trash}
+                >
+                  Clear History
+                </Button>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-75">
+                {completedOrders.slice(-6).reverse().map((order) => (
+                  <OrderCard key={order.id} order={order} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

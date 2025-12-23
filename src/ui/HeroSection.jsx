@@ -1,254 +1,105 @@
 import { useNavigate } from 'react-router-dom';
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy } from 'react';
+import { motion } from 'framer-motion';
+import Button from './Button';
+import { ChevronRight, ShoppingBag } from 'lucide-react';
 
-// Lazy load 3D components to prevent blocking - wrapped in try-catch
-let Hero3DCanvas = null;
-try {
-  Hero3DCanvas = lazy(() => import('./Hero3DWrapper'));
-} catch (error) {
-  console.warn('3D components failed to load:', error);
-}
+const Hero3D = lazy(() => import('./Hero3D'));
 
 export default function HeroSection() {
   const navigate = useNavigate();
-  // Disable 3D for now to prevent crashes
-  const [show3D] = useState(false);
 
   return (
-    <div 
-      className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-orange-100 to-white"
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100vh',
-        overflow: 'hidden',
-        background: 'linear-gradient(to bottom right, #fff7ed, #ffedd5, #ffffff)'
-      }}
-    >
-      {/* Simple animated background */}
-      <div 
-        className="absolute inset-0 overflow-hidden"
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' }}
-      >
-        <div 
-          className="absolute top-20 left-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"
-          style={{
-            position: 'absolute',
-            top: '80px',
-            left: '40px',
-            width: '288px',
-            height: '288px',
-            backgroundColor: '#fed7aa',
-            borderRadius: '50%',
-            opacity: 0.7,
-            filter: 'blur(40px)'
-          }}
-        ></div>
-        <div 
-          className="absolute top-40 right-10 w-72 h-72 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"
-          style={{
-            position: 'absolute',
-            top: '160px',
-            right: '40px',
-            width: '288px',
-            height: '288px',
-            backgroundColor: '#fef08a',
-            borderRadius: '50%',
-            opacity: 0.7,
-            filter: 'blur(40px)'
-          }}
-        ></div>
-        <div 
-          className="absolute -bottom-8 left-1/2 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"
-          style={{
-            position: 'absolute',
-            bottom: '-32px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '288px',
-            height: '288px',
-            backgroundColor: '#fce7f3',
-            borderRadius: '50%',
-            opacity: 0.7,
-            filter: 'blur(40px)'
-          }}
-        ></div>
-      </div>
+    <div className="relative w-full h-[110vh] overflow-hidden flex items-center justify-center -mt-20">
+      {/* 3D Background */}
+      <Suspense fallback={<div className="absolute inset-0 bg-zinc-950" />}>
+        <Hero3D />
+      </Suspense>
+      <div className="absolute inset-0 bg-zinc-950" />
 
-      {/* 3D Canvas - lazy loaded with error boundary - only if enabled */}
-      {show3D && Hero3DCanvas && (
-        <Suspense fallback={null}>
-          <div 
-            className="absolute inset-0 opacity-30" 
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.3 }}
+      <div className="container-mobile relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+        {/* Text Content */}
+        <div className="text-center lg:text-left space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            <ErrorBoundary3D>
-              <Hero3DCanvas />
-            </ErrorBoundary3D>
-          </div>
-        </Suspense>
-      )}
+            <span className="inline-block py-1 px-3 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-semibold mb-4 backdrop-blur-sm">
+              🚀 The Future of Campus Dining
+            </span>
+            <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-tight text-white drop-shadow-2xl">
+              Taste the <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">
+                Extraordinary
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-zinc-300 max-w-2xl mx-auto lg:mx-0 mt-6 leading-relaxed">
+              Experience the fastest, freshest, and most futuristic food ordering platform.
+              Your cravings, delivered with style.
+            </p>
+          </motion.div>
 
-      {/* UI Layer */}
-      <div 
-        className="relative z-20 flex flex-col items-center justify-center h-full text-center px-6"
-        style={{
-          position: 'relative',
-          zIndex: 20,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          textAlign: 'center',
-          padding: '0 24px'
-        }}
-      >
-        <div style={{ marginBottom: '32px' }}>
-          <h1 
-            className="text-6xl md:text-7xl font-bold text-orange-500 drop-shadow-lg mb-4 animate-fade-in"
-            style={{
-              fontSize: 'clamp(3rem, 8vw, 4.5rem)',
-              fontWeight: 'bold',
-              color: '#f97316',
-              marginBottom: '16px',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
-            }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
           >
-            Enantra Food Stall
-          </h1>
-          <p 
-            className="text-2xl md:text-3xl text-gray-700 font-medium drop-shadow mb-2"
-            style={{
-              fontSize: 'clamp(1.5rem, 4vw, 1.875rem)',
-              color: '#374151',
-              fontWeight: '500',
-              marginBottom: '8px',
-              textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
-            }}
-          >
-            Fresh • Fast • Affordable
-          </p>
-          <p 
-            className="text-lg text-gray-600 mt-4"
-            style={{ fontSize: '1.125rem', color: '#4b5563', marginTop: '16px' }}
-          >
-            🍔 Delicious food delivered to your door
-          </p>
-        </div>
-
-        <div 
-          className="flex flex-col sm:flex-row gap-4 mt-8"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            marginTop: '32px'
-          }}
-        >
-          <button
-            onClick={() => navigate('/menu')}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-10 py-4 rounded-full shadow-xl hover:shadow-2xl active:scale-95 transition-all duration-200 text-xl transform hover:scale-105"
-            style={{
-              backgroundColor: '#f97316',
-              color: 'white',
-              fontWeight: 'bold',
-              padding: '16px 40px',
-              borderRadius: '9999px',
-              fontSize: '1.25rem',
-              border: 'none',
-              cursor: 'pointer',
-              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#ea580c'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#f97316'}
-          >
-            🍕 Order Now
-          </button>
-          <button
-            onClick={() => navigate('/cart')}
-            className="bg-white hover:bg-gray-50 text-orange-500 font-bold px-10 py-4 rounded-full shadow-xl hover:shadow-2xl active:scale-95 transition-all duration-200 text-xl border-3 border-orange-500 transform hover:scale-105"
-            style={{
-              backgroundColor: 'white',
-              color: '#f97316',
-              fontWeight: 'bold',
-              padding: '16px 40px',
-              borderRadius: '9999px',
-              fontSize: '1.25rem',
-              border: '3px solid #f97316',
-              cursor: 'pointer',
-              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#f9fafb'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
-          >
-            🛒 View Cart
-          </button>
-        </div>
-
-        {/* Admin Button */}
-        <button
-          onClick={() => navigate('/admin/login')}
-          className="mt-4 text-gray-500 hover:text-gray-700 text-sm font-medium transition"
-          style={{
-            marginTop: '16px',
-            color: '#6b7280',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            background: 'none',
-            border: 'none',
-            textDecoration: 'underline'
-          }}
-        >
-          👨‍🍳 Admin Login
-        </button>
-
-        {/* Quick Menu Preview */}
-        <div 
-          className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl"
-          style={{
-            marginTop: '48px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '16px',
-            maxWidth: '672px'
-          }}
-        >
-          {[
-            { emoji: '🍔', label: 'Burgers' },
-            { emoji: '🍟', label: 'Sides' },
-            { emoji: '🥤', label: 'Drinks' },
-            { emoji: '🍕', label: 'More' }
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg hover:shadow-xl transition cursor-pointer"
+            <Button
+              variant="primary"
+              size="lg"
               onClick={() => navigate('/menu')}
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                borderRadius: '12px',
-                padding: '16px',
-                boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => e.target.style.boxShadow = '0 20px 25px -5px rgba(0,0,0,0.1)'}
-              onMouseLeave={(e) => e.target.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)'}
+              icon={ChevronRight}
+              className="text-lg"
             >
-              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>{item.emoji}</div>
-              <p style={{ fontWeight: '600', fontSize: '0.875rem' }}>{item.label}</p>
-            </div>
-          ))}
+              Start Ordering
+            </Button>
+            <Button
+              variant="glass"
+              size="lg"
+              onClick={() => navigate('/menu')}
+              icon={ShoppingBag}
+              className="text-lg"
+            >
+              Browse Menu
+            </Button>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="pt-8 flex items-center justify-center lg:justify-start gap-8"
+          >
+            {[
+              { label: 'Wait Time', value: '< 15m' },
+              { label: 'Rating', value: '4.3/5' },
+              { label: 'Active Stalls', value: '1' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center lg:text-left">
+                <p className="text-3xl font-bold text-white">{stat.value}</p>
+                <p className="text-sm text-zinc-500 uppercase tracking-widest">{stat.label}</p>
+              </div>
+            ))}
+          </motion.div>
         </div>
+
+        {/* Decorative Space (can be used for more 3D interactions or left open for the background) */}
+        <div className="hidden lg:block h-full min-h-[500px]" />
       </div>
+
+      {/* Scroll Indicator */}
+      <motion.div
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-zinc-500"
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <div className="w-6 h-10 border-2 border-zinc-700 rounded-full flex justify-center p-1">
+          <div className="w-1.5 h-1.5 bg-orange-500 rounded-full" />
+        </div>
+      </motion.div>
     </div>
   );
-}
-// Simple wrapper for 3D component
-function ErrorBoundary3D({ children }) {
-  return <>{children}</>;
 }
 

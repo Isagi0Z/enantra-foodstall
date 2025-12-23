@@ -1,101 +1,87 @@
 @import "tailwindcss";
 
-/* -----------------------------------
-   GLOBAL RESET & SMOOTHNESS
------------------------------------ */
+@theme {
+  --color-background: #09090b;
+  --color-surface: #18181b;
+
+  --color-primary: #f97316;
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover: #ea580c;
+
+  --color-secondary: #27272a;
+  --color-secondary-foreground: #fafafa;
+
+  --color-muted: #52525b;
+  --color-muted-foreground: #a1a1aa;
+
+  --color-accent: #f97316;
+  --color-accent-glow: rgba(249, 115, 22, 0.5);
+
+  --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.3);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  --font-sans: "Inter", sans-serif;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  @apply text-gray-900;
-  background: #fafafa;
+  @apply bg-background text-zinc-50 antialiased selection:bg-orange-500 selection:text-white;
   font-family: 'Inter', sans-serif;
-  margin: 0;
-  padding: 0;
 }
 
 #root {
-  width: 100%;
-  min-height: 100vh;
+  @apply min-h-screen flex flex-col;
 }
 
-/* -----------------------------------
-   MOBILE CONTAINER (max 480px on mobile, wider on desktop)
------------------------------------ */
+/* Glassmorphism Utilities */
+.glass-panel {
+  @apply bg-zinc-900/70 backdrop-blur-md border border-white/5 rounded-2xl shadow-xl;
+}
+
+.glass-card {
+  @apply bg-zinc-800/40 backdrop-blur-sm border border-white/5 rounded-xl transition-all duration-300 hover:bg-zinc-800/60 hover:border-orange-500/30 hover:shadow-glow;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-red-600;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-zinc-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-orange-500;
+}
+
 .container-mobile {
-  @apply w-full max-w-[480px] md:max-w-4xl mx-auto px-4;
-}
-
-/* -----------------------------------
-   BRAND THEME COLORS
------------------------------------ */
-:root {
-  --brand: #ff7b00;
-  --brand-dark: #e66d00;
-  --brand-light: #ff9f40;
-}
-
-/* -----------------------------------
-   GLOBAL ANIMATIONS
------------------------------------ */
-.fade-in {
-  animation: fadeIn 0.45s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.parallax {
-  animation: parallaxMove 12s ease-in-out infinite alternate;
-}
-
-@keyframes parallaxMove {
-  from { transform: scale(1.1) translateY(0px); }
-  to   { transform: scale(1.15) translateY(12px); }
-}
-
-@keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-  100% {
-    transform: translate(0px, 0px) scale(1);
-  }
-}
-
-.animate-blob {
-  animation: blob 7s infinite;
-}
-
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-  animation-delay: 4s;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.8s ease-out;
+  @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import RootLayout from './layouts/RootLayout';
 import Home from './pages/Home';
 import Menu from './components/Menu';
 import Cart from './components/Cart';
@@ -17,24 +18,24 @@ export default function App() {
       <AuthProvider>
         <CartProvider>
           <Router>
-            <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-              <Routes>
+            <Routes>
+              <Route element={<RootLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
-                <Route 
-                  path="/admin" 
+                <Route
+                  path="/admin"
                   element={
                     <ProtectedRoute>
                       <AdminDashboard />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-              </Routes>
-            </div>
+              </Route>
+            </Routes>
           </Router>
         </CartProvider>
       </AuthProvider>

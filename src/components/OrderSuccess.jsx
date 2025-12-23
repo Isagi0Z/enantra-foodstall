@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { motion } from 'framer-motion';
+import Button from '../ui/Button';
+import { CheckCircle, Clock, ChefHat, ShoppingBag, ArrowRight } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 export default function OrderSuccess() {
   const navigate = useNavigate();
@@ -16,7 +20,6 @@ export default function OrderSuccess() {
       return;
     }
 
-    // Listen to order updates in real-time
     const orderRef = doc(db, 'orders', orderId);
     const unsubscribe = onSnapshot(
       orderRef,
@@ -36,98 +39,130 @@ export default function OrderSuccess() {
       }
     );
 
+    // Fire confetti once on load
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#f97316', '#ea580c', '#fbbf24']
+    });
+
     return () => unsubscribe();
   }, [orderId, navigate]);
 
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f9fafb'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
-          <p>Loading order...</p>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-zinc-500">Retrieving your order...</p>
       </div>
     );
   }
 
-  if (!order) {
-    return null;
-  }
+  if (!order) return null;
+
+  const steps = [
+    { status: 'pending', icon: Clock, label: 'Pending' },
+    { status: 'preparing', icon: ChefHat, label: 'Preparing' },
+    { status: 'ready', icon: CheckCircle, label: 'Ready' },
+  ];
+
+  const currentStepIndex = steps.findIndex(s => s.status === order.status);
+  const isCompleted = order.status === 'completed';
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="container-mobile">
-        <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-          <div className="text-6xl mb-4">✅</div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Order Placed Successfully!
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <div className="container-mobile max-w-lg">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-panel p-8 text-center"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', bounce: 0.5 }}
+            className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/20"
+          >
+            <CheckCircle className="w-10 h-10 text-green-500" />
+          </motion.div>
+
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+            Order Successfully Placed!
           </h1>
-          <p className="text-gray-600 mb-6">
-            Thank you for your order. We'll prepare it fresh for you.
+          <p className="text-zinc-400 mb-8">
+            Your order <span className="text-orange-400 font-mono">#{order.orderNumber}</span> has been received.
           </p>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Order Number:</span>
-                  <span className="font-semibold">#{order.orderNumber || order.id}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Status:</span>
-                  <span className={`font-semibold ${
-                    order.status === 'pending' ? 'text-yellow-600' :
-                    order.status === 'preparing' ? 'text-blue-600' :
-                    order.status === 'ready' ? 'text-green-600' :
-                    'text-gray-600'
-                  }`}>
-                    {order.status === 'pending' ? '⏳ Pending' :
-                     order.status === 'preparing' ? '👨‍🍳 Preparing' :
-                     order.status === 'ready' ? '✅ Ready' :
-                     '✓ Completed'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Amount:</span>
-                  <span className="font-bold text-orange-500">₹{order.total}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Method:</span>
-                  <span className="font-semibold capitalize">
-                    {order.paymentMethod}
-                  </span>
-                </div>
-              </div>
+          {/* Status Tracker */}
+          <div className="bg-zinc-900/50 rounded-xl p-6 mb-8 border border-white/5">
+            <div className="flex justify-between relative">
+              {/* Progress Line */}
+              <div className="absolute top-1/2 left-0 w-full h-0.5 bg-zinc-800 -z-10 -translate-y-1/2" />
+              <div
+                className="absolute top-1/2 left-0 h-0.5 bg-orange-500 -z-10 -translate-y-1/2 transition-all duration-500"
+                style={{ width: `${(Math.max(0, currentStepIndex) / (steps.length - 1)) * 100}%` }}
+              />
+
+              {steps.map((step, index) => {
+                const isActive = index <= currentStepIndex || isCompleted;
+                const isCurrent = index === currentStepIndex && !isCompleted;
+                const Icon = step.icon;
+
+                return (
+                  <div key={step.status} className="flex flex-col items-center gap-2 bg-zinc-900/50 px-2 rounded-lg">
+                    <div className={`
+                      w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                      ${isActive ? 'bg-orange-500 border-orange-500 text-white' : 'bg-zinc-800 border-zinc-700 text-zinc-500'}
+                      ${isCurrent ? 'animate-pulse ring-4 ring-orange-500/20' : ''}
+                    `}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className={`text-xs font-medium ${isActive ? 'text-white' : 'text-zinc-500'}`}>
+                      {step.label}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
-            {order.status !== 'completed' && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <p className="text-blue-800 text-sm">
-                  📱 Your order is being prepared! You'll see real-time updates here.
-                </p>
-              </div>
-            )}
+            <div className="mt-6 p-3 bg-orange-500/10 rounded-lg border border-orange-500/10">
+              <p className="text-sm text-orange-200">
+                {order.status === 'pending' && "We've received your order. The kitchen will start soon!"}
+                {order.status === 'preparing' && "Your food is being prepared with love! 👨‍🍳"}
+                {order.status === 'ready' && "Your order is ready for pickup! Enoy your meal! 🍽️"}
+                {order.status === 'completed' && "Order completed. Hope you enjoyed the food!"}
+              </p>
+            </div>
+          </div>
 
-          <div className="space-y-3">
-            <button
+          <div className="border-t border-white/5 pt-6 text-left space-y-3 mb-8">
+            <div className="flex justify-between text-zinc-400 text-sm">
+              <span>Total Amount</span>
+              <span className="text-white font-bold text-lg">₹{order.total}</span>
+            </div>
+            <div className="flex justify-between text-zinc-400 text-sm">
+              <span>Payment Method</span>
+              <span className="text-white capitalize">{order.paymentMethod}</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/')}
+            >
+              Home
+            </Button>
+            <Button
+              variant="primary"
               onClick={() => navigate('/menu')}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-full font-semibold transition"
+              icon={ArrowRight}
             >
               Order More
-            </button>
-            <button
-              onClick={() => navigate('/')}
-              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-full font-semibold transition"
-            >
-              Back to Home
-            </button>
+            </Button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
