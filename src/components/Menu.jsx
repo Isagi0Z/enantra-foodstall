@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useMenuItems } from '../hooks/useMenuItems';
 import { categories } from '../data/menuItems';
 import Button from '../ui/Button';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, ShoppingBag } from 'lucide-react';
 
 export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const { addToCart, cart, updateQuantity } = useCart();
   const { menuItems, loading } = useMenuItems();
+  const navigate = useNavigate();
 
   const filteredItems = selectedCategory === 'All'
     ? menuItems
@@ -171,6 +173,33 @@ export default function Menu() {
           </>
         )}
       </div>
+
+      {/* Mobile Floating Cart Bar */}
+      <AnimatePresence>
+        {cart.length > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-4 left-4 right-4 z-50 md:hidden"
+            onClick={() => navigate('/checkout')}
+          >
+            <div className="bg-orange-500/90 backdrop-blur-md rounded-xl p-4 shadow-lg shadow-orange-500/20 flex items-center justify-between border border-white/10 active:scale-95 transition-transform">
+              <div className="flex flex-col">
+                <span className="font-bold text-white">
+                  {cart.reduce((sum, item) => sum + item.quantity, 0)} Items
+                </span>
+                <span className="text-xs text-orange-100">
+                  ₹{cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 font-semibold text-white">
+                View Cart <ShoppingBag className="w-4 h-4" />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
