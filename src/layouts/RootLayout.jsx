@@ -20,7 +20,7 @@ export default function RootLayout() {
             <footer className="border-t border-white/5 bg-zinc-950 py-8 mt-20">
                 <div className="container-mobile text-center">
                     <p className="text-zinc-500">
-                        © {new Date().getFullYear()} Enantra Food Stall. Crafted with 🧡 by your friendly CEGian.
+                        © {new Date().getFullYear()} Enantra Food Stall. Crafted with 🩶 by your friendly CEGian.
                     </p>
                 </div>
             </footer>
